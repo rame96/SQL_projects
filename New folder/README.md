@@ -31,15 +31,16 @@ total_sale: Total value of the transaction.
 # Dealing with NULL Values
 Filling missing age values with the average age based on gender:
 
-WITH avg_table AS (
-    SELECT gender, AVG(age) AS avg_age FROM sales WHERE age IS NOT NULL GROUP BY gender
-)
+WITH avg_table AS 
+(SELECT gender, AVG(age) AS avg_age FROM sales WHERE age IS NOT NULL GROUP BY gender   )
+
 UPDATE sales SET age = avg_table.avg_age FROM avg_table WHERE avg_table.gender = sales.gender AND sales.age IS NULL;
 
 # Customer Analysis
 Count the total number of unique customers:
 
-SELECT COUNT(DISTINCT customer_id) AS total_customer FROM sales;
+SELECT COUNT(DISTINCT customer_id) AS total_customer 
+FROM sales;
 
 # Retrieving Sales Data for Specific Dates
 Retrieve all sales made on '2022-11-05':
@@ -76,7 +77,7 @@ Calculate the average sale for each month and find the best-selling month of eac
 
 SELECT year, month, avg_sale FROM (
     SELECT EXTRACT(YEAR FROM sale_date) AS year, EXTRACT(MONTH FROM sale_date) AS month, AVG(total_sale) AS avg_sale,
-           RANK() OVER (PARTITION BY EXTRACT(YEAR FROM sale_date) ORDER BY AVG(total_sale) DESC)
+    RANK() OVER (PARTITION BY EXTRACT(YEAR FROM sale_date) ORDER BY AVG(total_sale) DESC)
     FROM sales GROUP BY month, year ORDER BY year, avg_sale DESC
 )
 WHERE rank = 1;
@@ -90,13 +91,14 @@ SELECT customer_id, SUM(total_sale) AS total_amount FROM sales GROUP BY customer
 # Transaction Time-Based Analysis (Shift Segmentation)
 Create and count the number of orders for different shifts (morning, afternoon, evening):
 
-WITH hrs_sales AS (
-    SELECT *,
+
+WITH hrs_sales AS 
+   ( SELECT *,
            CASE 
                WHEN EXTRACT(HOUR FROM sale_time) < 12 THEN 'morning'
                WHEN EXTRACT(HOUR FROM sale_time) BETWEEN 12 AND 17 THEN 'afternoon'
                ELSE 'evening'
-           END AS shift
+           END AS shift       
     FROM sales
 )
 SELECT shift, COUNT(*) AS total_order FROM hrs_sales GROUP BY shift;
